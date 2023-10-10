@@ -4,8 +4,8 @@ const path = require("path");
  * File Name: main.js
  * Description:
  *
- * Created Date:
- * Author:
+ * Created Date: October 10, 2023
+ * Author: Chiao-Jhu (Katy) Chan
  *
  */
 
@@ -14,23 +14,10 @@ const zipFilePath = path.join(__dirname, "myfile.zip");
 const pathUnzipped = path.join(__dirname, "unzipped");
 const pathProcessed = path.join(__dirname, "grayscaled");
 
-const zlib = require("zlib");
-const unzipper = require("unzipper");
-const fs = require("fs");
 
 
 
-
-// Step 1: Unzip myfile.zip
-
-
-
-fs.createReadStream(zipFilePath)
-    .pipe(unzipper.Extract({ path: "./unzipped"}))    
-
-
-
-// Read each png file...
-
-fs.createReadStream("png1.png")
-    .on("data", (chunk) => console.log(chunk));
+IOhandler.unzip(zipFilePath, pathUnzipped)
+    // .then(()=> IOhandler.readDir())
+    // .then(()=> IOhandler.grayScale())
+    .catch((err)=> console.log(err))

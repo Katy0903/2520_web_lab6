@@ -22,10 +22,10 @@ const unzipper = require("unzipper"),
  */
 
 const unzip = (pathIn, pathOut) => {
-
-
+  return fs.createReadStream(pathIn)
+    .pipe(unzipper.Extract({ path: pathOut }))
+    .promise()
 };
-
 
 
 
