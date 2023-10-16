@@ -18,6 +18,9 @@ const pathProcessed = path.join(__dirname, "grayscaled");
 
 
 IOhandler.unzip(zipFilePath, pathUnzipped)
-    // .then(()=> IOhandler.readDir())
-    // .then(()=> IOhandler.grayScale())
+    .then(()=> IOhandler.readDir(pathUnzipped))
+    .then(()=> IOhandler.grayScale())
+    // .then(() => {
+    //     console.log("Grayscale conversion completed for all PNG files.");
+    // })
     .catch((err)=> console.log(err))

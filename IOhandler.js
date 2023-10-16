@@ -64,7 +64,45 @@ const readDir = (dir) => {
 
 
 
-const grayScale = (pathIn, pathOut) => {};
+const grayScale = (pathIn, pathOut) => {
+  return new Promise((resolve, reject) => {
+    const input = fs.createReadStream(pathIn);
+    const output = fs.createWriteStream(pathOut);
+    // const png = new PNG();
+    const transformStream = new PNG({});
+  
+    input
+      .pipe(transformStream)
+      .on("parsed", function () {
+        for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+            const idx = (this.width * y + x) << 2;
+    
+            // invert color
+            this.data[idx] = 255 - this.data[idx];
+            this.data[idx + 1] = 255 - this.data[idx + 1];
+            this.data[idx + 2] = 255 - this.data[idx + 2];
+    
+            // and reduce opacity
+            this.data[idx + 3] = this.data[idx + 3] >> 1;
+          }
+        }
+    
+        this.pack().pipe(output);
+
+
+
+        output
+          .on("finish", () => {resolve()})
+          .on("error", (err) => {reject(err)});
+
+      });
+    input
+      .on("error", (err) => {reject(err)});
+  });
+};
+
+
 
 module.exports = {
   unzip,
