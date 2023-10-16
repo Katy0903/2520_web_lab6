@@ -10,6 +10,7 @@
 
 const unzipper = require("unzipper"),
   fs = require("fs"),
+  // { createReadStream } = require("fs");
   PNG = require("pngjs").PNG,
   path = require("path");
 
@@ -35,7 +36,19 @@ const unzip = (pathIn, pathOut) => {
  * @param {string} path
  * @return {promise}
  */
-const readDir = (dir) => {};
+const readDir = (dir) => {
+  return new Promise((resolve, reject) => {
+    fs.readdir(dir, (err, files) => {
+      if (err) {
+        reject(err);
+      } else {
+        const pngFiles = files.filter((file) => path.extname(file)=== ".png");
+        const filePaths = pngFiles.map((file) => path.join(dir, file));
+        resolve(filePaths);
+      }
+    });
+  });
+};
 
 
 
