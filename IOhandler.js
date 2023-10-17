@@ -9,6 +9,7 @@
  */
 
 const unzipper = require("unzipper"),
+  AdmZip = require("adm-zip"),
   fs = require("fs"),
   // { createReadStream } = require("fs");
   PNG = require("pngjs").PNG,
@@ -23,12 +24,13 @@ const unzipper = require("unzipper"),
  */
 
 const unzip = (pathIn, pathOut) => {
-  return fs.createReadStream(pathIn)
-    .pipe(unzipper.Extract({ path: pathOut }))
-    .promise()
+  return new Promise((resolve, reject) => {
+    const zip = new AdmZip(pathIn);
+    zip.extractAllTo(pathOut, true);
+    console.log("Extraction operation complete");
+    resolve();
+  });
 };
-
-
 
 /**
  * Description: read all the png files from given directory and return Promise containing array of each png file path
@@ -42,9 +44,13 @@ const readDir = (dir) => {
       if (err) {
         reject(err);
       } else {
-        const pngFiles = files.filter((file) => path.extname(file)=== ".png");
-        const filePaths = pngFiles.map((file) => path.join(dir, file));
-        resolve(filePaths);
+        const pngFiles = files
+          .filter((file) => path.extname(file) === ".png")
+          .filter((file) => file !== ".DS_Store")
+          .filter((file) => file !== "__MACOSX")
+          .map((file) => path.join(dir, file));
+        // const filePaths = pngFiles.map((file) => path.join(dir, file));
+        resolve(pngFiles);
       }
     });
   });
@@ -103,9 +109,18 @@ const grayScale = (pathIn, pathOut) => {
 };
 
 
+const processImages = (pngFiles, pathProcessed) => {
+  const grayScalePromises = pngFiles.map((file) => {
+    const outputFilePath = path.join(pathProcessed, path.basename(file));
+    return grayScale(file, outputFilePath);
+  });
+  return Promise.all(grayScalePromises);
+};
+
 
 module.exports = {
   unzip,
   readDir,
   grayScale,
+  processImages
 };
