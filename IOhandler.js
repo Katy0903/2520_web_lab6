@@ -23,14 +23,23 @@ const unzipper = require("unzipper"),
  * @return {promise}
  */
 
+
 const unzip = (pathIn, pathOut) => {
   return new Promise((resolve, reject) => {
-    const zip = new AdmZip(pathIn);
-    zip.extractAllTo(pathOut, true);
-    console.log("Extraction operation complete");
-    resolve();
+    try {
+      const zip = new AdmZip(pathIn);
+      zip.extractAllTo(pathOut, true);
+      console.log("Extraction operation complete");
+      resolve();
+
+    } catch (err) {
+      reject(err)
+    }
   });
 };
+
+
+
 
 /**
  * Description: read all the png files from given directory and return Promise containing array of each png file path
@@ -38,24 +47,25 @@ const unzip = (pathIn, pathOut) => {
  * @param {string} path
  * @return {promise}
  */
+
 const readDir = (dir) => {
   return new Promise((resolve, reject) => {
     fs.readdir(dir, (err, files) => {
       if (err) {
         reject(err);
+
       } else {
+
         const pngFiles = files
           .filter((file) => path.extname(file) === ".png")
           .filter((file) => file !== ".DS_Store")
           .filter((file) => file !== "__MACOSX")
           .map((file) => path.join(dir, file));
-        // const filePaths = pngFiles.map((file) => path.join(dir, file));
         resolve(pngFiles);
       }
     });
   });
 };
-
 
 
 
@@ -74,13 +84,11 @@ const grayScale = (pathIn, pathOut) => {
   return new Promise((resolve, reject) => {
     const input = fs.createReadStream(pathIn);
     const output = fs.createWriteStream(pathOut);
-    // const png = new PNG();
     const transformStream = new PNG({});
   
     input
       .pipe(transformStream)
       .on("parsed", function() {
-        // Loop through the pixel array and apply the grayscale filter
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
             const idx = (this.width * y + x) << 2;
@@ -90,8 +98,6 @@ const grayScale = (pathIn, pathOut) => {
         }
     
         this.pack().pipe(output);
-
-
 
         output
           .on("finish", () => {resolve()})
@@ -104,6 +110,7 @@ const grayScale = (pathIn, pathOut) => {
 };
 
 
+
 const processImages = (pngFiles, pathProcessed) => {
   const grayScalePromises = pngFiles.map((file) => {
     const outputFilePath = path.join(pathProcessed, path.basename(file));
@@ -111,6 +118,7 @@ const processImages = (pngFiles, pathProcessed) => {
   });
   return Promise.all(grayScalePromises);
 };
+
 
 
 module.exports = {
